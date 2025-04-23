@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.min.js"></script>
+    <link rel="stylesheet" href="/250421/css/product-list.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <div>
+            <table>
+                <tr>
+                    <th>상품명</th>
+                    <th>설명</th>
+                    <th>가격</th>
+                    <th>재고</th>
+                    <th>카테고리명</th>
+                    <th>삭제</th>
+                    <th>수정</th>
+                </tr>
+                <tr v-for="item in list">
+                    <td>
+                        <a @click="fnGetProductInfo(item.productId)">{{item.productName}}</a>
+                    </td>
+                    <td>{{item.description}}</td>
+                    <td>{{item.price}}</td>
+                    <td>{{item.stock}}</td>
+                    <td>{{item.category}}</td>
+                    <td><button @click="fnDelete(item.productId)">삭제</button></td>
+                    <td><button @click="fnEdit(item.productId)">수정</button></td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <span v-if="page != 1"><a href="javascript:;" @click="page++; fnGetProductList()" > < </a></span>
+            <span v-for="num in index">
+                <a href="javascript:;" @click="page=num; fnGetProductList()">{{num}}</a>
+            </span>
+            <span v-if="page != index"><a href="javascript:;" @click="page--; fnGetProductList()"> > </a></span>
+        </div>
+
+	</div>
+</body>
+</html>
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                list : [],
+                page : 1, // 현재 페이지
+                index : 1, // 전체 페이지
+                pageSize : 5 // 한 페이지에 보여줄 개수
+            };
+        },
+        methods: {
+            fnGetProductList(){
+                let self = this;
+                let offset = (self.page - 1) * self.pageSize;
+                let params = "?pageSize=" + self.pageSize + "&offset=" + self.offset;
+                fetch("http://localhost:3000/product")
+                .then((res) => res.json())
+                .then(data => {
+                    self.list = data.list;
+                    self.index = Math.ceil(data.count/self.pageSize);
+                })
+            },
+            fnGetProductInfo(productId) {
+                location.href = "product-info.html?productId="+productId;
+            },
+            fnEdit(productId) {
+                location.href = "product-add.html?productId="+productId;
+            },
+            fnDelete(productId) {
+                let self = this;
+                fetch("http://localhost:3000/product/"+productId, {
+                    method : "DELETE",
+                })
+                .then((res) => res.json())
+                .then(data => {
+                    alert("삭제됨");
+                    self.fnGetProductList();
+                })
+            }
+
+        },
+        mounted() {
+            let self = this;
+            self.fnGetProductList();
+        }
+    });
+    app.mount('#app');
+
+
+</script>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.min.js"></script>
+    <link rel="stylesheet" href="/250421/css/product-list.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <div>
+            <table>
+                <tr>
+                    <th>상품명</th>
+                    <th>설명</th>
+                    <th>가격</th>
+                    <th>재고</th>
+                    <th>카테고리명</th>
+                </tr>
+                <tr>
+                    <td>{{info.productName}}</td>
+                    <td>{{info.description}}</td>
+                    <td>{{info.price}}</td>
+                    <td>{{info.stock}}</td>
+                    <td>{{info.category}}</td>
+                </tr>
+            </table>
+        </div>
+
+	</div>
+</body>
+</html>
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                info : {},
+                productId : ""
+            };
+        },
+        methods: {
+            fnGetProductInfo(){
+                let self = this;
+                fetch("http://localhost:3000/product/"+self.productId)
+                .then((res) => res.json())
+                .then(data => {
+                    self.info = data.info;
+                })
+            }
+        },
+        mounted() {
+            let self = this;
+            const queryParams = new URLSearchParams(window.location.search);
+            self.productId = queryParams.get('productId') || '';
+            self.fnGetProductInfo();
+        }
+    });
+    app.mount('#app');
+
+
+</script>

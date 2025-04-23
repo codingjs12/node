@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.min.js"></script>
+    <link rel="stylesheet" href="/250421/css/product-list.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <div>
+            <div>상품명 : <input placeholder="제품명" v-model="info.productName"></div>
+            <div>설명 : <input placeholder="제품 설명" v-model="info.description"></div>
+            <div>가격 : <input placeholder="가격" v-model="info.price"></div>
+            <div>재고 : <input placeholder="재고" v-model="info.stock"></div>
+            <div>카테고리명 : <input placeholder="카테고리명" v-model="info.category"></div>
+        </div>
+        <div>
+            <button v-if="productId =='' " @click="fnSave">저장</button>
+            <button v-else @click="fnEdit">수정</button>
+        </div>
+	</div>
+</body>
+</html>
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                info : {
+                    productName : "",
+                    description : "",
+                    price : "",
+                    stock : "",
+                    category : ""
+                },
+                productId : ""
+            };
+        },
+        methods: {
+            fnSave(){
+                let self = this;
+                fetch("http://localhost:3000/product", {
+                    method : "POST",
+                    headers : {
+                        "Content-type" : "application/json"
+                    },
+                    body : JSON.stringify(self.info),
+                })
+                .then((res) => res.json())
+                .then(data => {
+                    console.log(data);
+                })
+            },
+
+            fnEdit(){
+                let self = this;
+                fetch("http://localhost:3000/product", {
+                    method : "PUT",
+                    headers : {
+                        "Content-type" : "application/json"
+                    },
+                    body : JSON.stringify(self.info),
+                })
+                .then((res) => res.json())
+                .then(data => {
+                    console.log(data);
+                })
+            },
+            
+            fnGetProductInfo(){
+                let self = this;
+                fetch("http://localhost:3000/product/"+self.productId)
+                .then((res) => res.json())
+                .then(data => {
+                    self.info = data.info;
+                })
+            }
+
+        },
+        mounted() {
+            let self = this;
+            const queryParams = new URLSearchParams(window.location.search);
+            if(queryParams.get('productId') != null) {
+                self.productId = queryParams.get('productId') || '';
+                self.fnGetProductInfo();
+            }
+
+        }
+    });
+    app.mount('#app');
+
+
+</script>
